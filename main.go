@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -12,6 +13,7 @@ import (
 
 var (
 	sheetname = "Sheet1"
+	batchSize = 6000
 )
 
 func main() {
@@ -41,7 +43,10 @@ func main() {
 	}
 
 	today := time.Now().Format("2006-01-02")
-	outname := today + ".csv"
+	batch := 0
+	lines := 1 // the line with header `code`
+
+	outname := fmt.Sprintf("%s-%d.csv", today, batch)
 
 	out, err := os.Create(outname)
 	if err != nil {
@@ -50,23 +55,49 @@ func main() {
 
 	cw := csv.NewWriter(out)
 
-	buf := make([]string, 0)
-
-	buf = append(buf, "code")
+	cw.Write([]string{"code"})
 
 	for _, row := range rows {
 		for idx, col := range row {
 			if idx == 0 {
 				continue
 			}
-			buf = append(buf, col)
+
+			col = strings.TrimSpace(col)
+
+			if col == "" {
+				continue
+			}
+
+			lines += 1
+			cw.Write([]string{col})
+
+			if lines >= batchSize {
+				// flush current file to disk
+				cw.Flush()
+				log.Println("generated", outname)
+
+				lines = 1
+				batch += 1
+
+				outname = fmt.Sprintf("%s-%d.csv", today, batch)
+
+				out, err := os.Create(outname)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				cw = csv.NewWriter(out)
+
+				cw.Write([]string{"code"})
+			}
 		}
 	}
 
-	cw.Write(buf)
-
+	// flush current file to disk
 	cw.Flush()
 	log.Println("generated", outname)
-	log.Printf("total %d lines\n", len(buf))
+
+	log.Printf("total %d lines\n", lines+batch*batchSize)
 	log.Println("please confirm with Shining")
 }
