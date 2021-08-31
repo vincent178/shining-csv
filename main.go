@@ -14,11 +14,14 @@ import (
 var (
 	sheetname = "Sheet1"
 	batchSize = 6000
+
+	version = "0.0.2"
 )
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Printf(`Usage: 
+		fmt.Printf(`shinning-csv version: ` + version + `
+Usage: 
   shining-csv <path to xlsx file>
 `)
 		os.Exit(1)
