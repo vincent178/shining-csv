@@ -60,28 +60,14 @@ Usage:
 
 	cw.Write([]string{"code"})
 
-	includeFirstColumn := false
-
-	for idx, row := range rows {
-		for idy, col := range row {
-
-			// 如果首行首列的值不为空，那么保存第一列的值
-			if idx == 0 && idy == 0 {
-				if col != "" {
-					includeFirstColumn = true
-				}
-			}
-
-			// 如果是不用包含首列的值则跳过
-			if idy == 0 && !includeFirstColumn {
-				continue
-			}
-
+	for _, row := range rows {
+		for _, col := range row {
 			col = strings.TrimSpace(col)
 
-			if col == "" {
+			if !isValid(col) {
 				continue
 			}
+
 
 			lines += 1
 			cw.Write([]string{col})
@@ -114,4 +100,8 @@ Usage:
 
 	log.Printf("total %d lines\n", lines+batch*batchSize)
 	log.Println("please confirm with Shining")
+}
+
+func isValid(str string) bool {
+	return len([]byte(str)) > 5
 }
