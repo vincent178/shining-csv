@@ -57,9 +57,20 @@ func main() {
 
 	cw.Write([]string{"code"})
 
-	for _, row := range rows {
-		for idx, col := range row {
-			if idx == 0 {
+	includeFirstColumn := false
+
+	for idx, row := range rows {
+		for idy, col := range row {
+
+			// 如果首行首列的值不为空，那么保存第一列的值
+			if idx == 0 && idy == 0 {
+				if col != "" {
+					includeFirstColumn = true
+				}
+			}
+
+			// 如果是不用包含首列的值则跳过
+			if idy == 0 && !includeFirstColumn {
 				continue
 			}
 
