@@ -1,4 +1,4 @@
-module shining-csv
+module github.com/vincent178/shining-csv
 
 go 1.16
 
